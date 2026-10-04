@@ -3,6 +3,12 @@
 #include "kernel/fcntl.h"
 
 void memdump(char *fmt, char *data, int len);
+char *memdump_c(char *data);
+char *memdump_i(char *data);
+char *memdump_h(char *data);
+char *memdump_p(char *data);
+char *memdump_S(char *data);
+char *memdump_s(char *data);
 
 int
 main(int argc, char *argv[])
@@ -57,9 +63,73 @@ main(int argc, char *argv[])
   exit(0);
 }
 
-void
-memdump(char *fmt, char *data, int len)
+void memdump(char *fmt, char *data, int len)
 {
   // Your code here.  `data` holds `len` valid bytes.
+  for (; *fmt != '\0'; fmt++)
+	{
+		switch (*fmt)
+		{
+		case 'c':
+			data = memdump_c(data);
+			break;
+		case 'i':
+			data = memdump_i(data);
+			break;
+		case 'h':
+			data = memdump_h(data);
+			break;
+		case 'p':
+			data = memdump_p(data);
+			break;
+		case 'S':
+			data = memdump_S(data);
+			break;
+		case 's':
+			data = memdump_s(data);
+			break;
 
+		default:
+			break;
+		}
+
+		printf("\n");
+	}
+}
+
+char *memdump_c(char *data)
+{
+	printf("%c", *data);
+	return data + sizeof(uint8);
+}
+
+char *memdump_i(char *data)
+{
+	printf("%d", *(uint32 *)data);
+	return data + sizeof(uint32);
+}
+
+char *memdump_h(char *data)
+{
+	printf("%d", *(uint16 *)data);
+	return data + sizeof(uint16);
+}
+
+char *memdump_p(char *data)
+{
+	printf("%lx", *(uint64 *)data);
+	return data + sizeof(uint64);
+}
+
+char *memdump_S(char *data)
+{
+	printf("%s", data);
+	return data + strlen(data) + 1;
+}
+
+char *memdump_s(char *data)
+{
+	uint64 *ptr = (uint64 *)data;
+	printf("%s", (char *)*ptr);
+	return data + sizeof(uint64);
 }
