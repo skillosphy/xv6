@@ -4,79 +4,53 @@
 
 #define MAX_BUF_SIZE 40
 
-int main(int argc, char *argv[])
+static void
+process_file(int fd)
 {
-    if (argc < 2)
-    {
-        fprintf(2, "sixfive usage: sixfive [filenames...] \n");
-        exit(1);
+    char c;
+    char buf[MAX_BUF_SIZE];
+    int n, buf_len = 0, start_valid = 1;
+
+    while ((n = read(fd, &c, 1)) > 0) {
+        char *is_valid = strchr(" -\r\t\n./,", c);
+        if (is_valid) {
+            if (buf_len > 0) {
+                buf[buf_len] = '\0';
+                int num = atoi(buf);
+                if (num % 5 == 0 || num % 6 == 0)
+                    fprintf(1, "%d\n", num);
+            }
+            buf_len = 0;
+            start_valid = 1;
+        } else if (c >= '0' && c <= '9' && start_valid) {
+            if (buf_len < MAX_BUF_SIZE - 1)
+                buf[buf_len++] = c;
+        } else {
+            buf_len = 0;
+            start_valid = 0;
+        }
     }
 
-    for (int i = 1; i < argc; i++)
-    {
-        int fd = open(argv[i], O_RDONLY);
+    if (buf_len > 0) {
+        buf[buf_len] = '\0';
+        int num = atoi(buf);
+        if (num % 5 == 0 || num % 6 == 0)
+            fprintf(1, "%d\n", num);
+    }
+}
 
-        if (fd == -1)
-        {
-            fprintf(2, "cannot open file %s \n", argv[i]);
+int main(int argc, char *argv[])
+{
+    if (argc == 1) {
+        process_file(0);
+    }
+    for (int i = 1; i < argc; i++) {
+        int fd = open(argv[i], O_RDONLY);
+        if (fd < 0) {
+            fprintf(2, "cannot open file %s\n", argv[i]);
             continue;
         }
-
-        char valid_char[] = " -\r\t\n./,";
-        char c;
-
-        char buf[MAX_BUF_SIZE];
-        int n = 0;
-        int num = 0;
-        int buf_len = 0;
-        int start_valid = 1;
-
-        memset(buf, 0, MAX_BUF_SIZE);
-        buf[0] = '\0';
-
-        while ((n = read(fd, &c, 1)) >= 0)
-        {
-            char* is_valid = strchr(valid_char, c);
-            if (is_valid || n == 0)
-            {
-                start_valid = 1;
-                if (buf[0] != '\0')
-                {
-                    buf[buf_len] = '\0';
-                    num = atoi(buf);
-                    if (num % 5 == 0 || num % 6 == 0)
-                    {
-                        fprintf(1, "%d \n", num);
-                    }
-                }
-
-                memset(buf, 0, MAX_BUF_SIZE);
-                buf[0] = '\0';
-                buf_len = 0;
-            }
-
-            if (!is_valid)
-            {
-                if ('0' <= c && c <= '9' && start_valid)
-                {
-                    buf[buf_len] = c;
-                    buf_len++;
-                }
-                else
-                {
-                    start_valid = 0;
-                    if (buf[0] != '\0')
-                    {
-                        memset(buf, 0, MAX_BUF_SIZE);
-                        buf[0] = '\0';
-                        buf_len = 0;
-                    }
-                }
-            }
-
-            if (n == 0)
-                break;
-        }
+        process_file(fd);
         close(fd);
     }
 

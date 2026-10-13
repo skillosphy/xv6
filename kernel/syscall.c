@@ -143,21 +143,21 @@ syscall(void)
 
   num = p->trapframe->a7;
   if (num > 0 && num < NELEM(syscalls) && syscalls[num]) {
+    int blocked = p->sandbox_mask & (1 << num);
 
-    if (p->sandbox_mask & (1 << num)) {
-      int allowed = 0;
-      if ((num == SYS_open || num == SYS_exec) &&
-          strncmp(p->sandbox_path, "-", MAXPATH) != 0) {
-        char path[MAXPATH];
-        if (argstr(0, path, MAXPATH) >= 0 &&
-            strncmp(path, p->sandbox_path, MAXPATH) == 0) {
-          allowed = 1;
-        }
-      }
-      if (!allowed) {
-        p->trapframe->a0 = -1;
-        return;
-      }
+    if (num == SYS_open && p->sandbox_path[0] != 0 &&
+        strncmp(p->sandbox_path, "-", MAXPATH) != 0) {
+      char path[MAXPATH];
+      if (argstr(0, path, MAXPATH) < 0)
+        blocked = 1;
+      else if (blocked)
+        blocked = strncmp(path, p->sandbox_path, MAXPATH) != 0;
+      else
+        blocked = strncmp(path, p->sandbox_path, MAXPATH) == 0;
+    }
+    if (blocked) {
+      p->trapframe->a0 = -1;
+      return;
     }
     // Use num to lookup the system call function for num, call it,
     // and store its return value in p->trapframe->a0

@@ -28,5 +28,11 @@ main(int argc, char *argv[])
   strcpy(data, MSG);
   strcpy(data + strlen(MSG), argv[1]);
 
+  int fd = open("attack-secret", O_CREATE | O_WRONLY);
+  if (fd >= 0) {
+    write(fd, argv[1], strlen(argv[1]));
+    close(fd);
+  }
+
   exit(0);
 }

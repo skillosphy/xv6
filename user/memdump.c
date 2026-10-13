@@ -65,36 +65,62 @@ main(int argc, char *argv[])
 
 void memdump(char *fmt, char *data, int len)
 {
-  // Your code here.  `data` holds `len` valid bytes.
-  for (; *fmt != '\0'; fmt++)
-	{
-		switch (*fmt)
-		{
-		case 'c':
-			data = memdump_c(data);
-			break;
-		case 'i':
-			data = memdump_i(data);
-			break;
-		case 'h':
-			data = memdump_h(data);
-			break;
-		case 'p':
-			data = memdump_p(data);
-			break;
-		case 'S':
-			data = memdump_S(data);
-			break;
-		case 's':
-			data = memdump_s(data);
-			break;
+  for (; *fmt != '\0'; fmt++) {
+    int consumed = 0;
+    switch (*fmt) {
+    case 'c':
+      consumed = 1;
+      break;
+    case 'h':
+      consumed = sizeof(uint16);
+      break;
+    case 'i':
+      consumed = sizeof(uint32);
+      break;
+    case 'p':
+    case 's':
+      consumed = sizeof(uint64);
+      break;
+    case 'S':
+      consumed = 1;
+      while (consumed <= len && data[consumed - 1] != '\0')
+        consumed++;
+      if (consumed > len && len > 0)
+        consumed = len;
+      break;
+    default:
+      printf("\n");
+      continue;
+    }
 
-		default:
-			break;
-		}
+    if (consumed > len) {
+      printf("memdump: not enough data\n");
+      return;
+    }
 
-		printf("\n");
-	}
+    switch (*fmt) {
+    case 'c':
+      data = memdump_c(data);
+      break;
+    case 'i':
+      data = memdump_i(data);
+      break;
+    case 'h':
+      data = memdump_h(data);
+      break;
+    case 'p':
+      data = memdump_p(data);
+      break;
+    case 'S':
+      data = memdump_S(data);
+      break;
+    case 's':
+      data = memdump_s(data);
+      break;
+    }
+    len -= consumed;
+    printf("\n");
+  }
 }
 
 char *memdump_c(char *data)

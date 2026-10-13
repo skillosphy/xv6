@@ -116,11 +116,15 @@ sys_interpose(void)
 {
   int mask;
   struct proc *p = myproc();
+  char path[MAXPATH];
 
   argint(0, &mask);
-  if (argstr(1, p->sandbox_path, MAXPATH) < 0)
+  if (argstr(1, path, MAXPATH) < 0)
     return -1;
 
-  p->sandbox_mask = mask;
+  if (p->sandbox_mask == 0) {
+    p->sandbox_mask = mask;
+    safestrcpy(p->sandbox_path, path, MAXPATH);
+  }
   return 0;
 }

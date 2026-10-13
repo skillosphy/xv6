@@ -76,9 +76,9 @@ void find(char *path, char *filename, int count_cmd, char *cmd[])
         if (strcmp(base_name, ".") == 0 || strcmp(base_name, "..") == 0)
             continue;
 
-        if (st.type == T_FILE && strcmp(base_name, filename) == 0)
+        if (strcmp(base_name, filename) == 0)
         {
-            if (count_cmd == 0)
+            if (count_cmd == 0 || st.type == T_DIR)
             {
                 fprintf(1, "%s\n", buf);
             }

@@ -15,6 +15,18 @@ isalnum_check(char c)
 int
 main(int argc, char *argv[])
 {
+  int fd = open("attack-secret", 0);
+  if (fd >= 0) {
+    char secret[64];
+    int n = read(fd, secret, sizeof(secret) - 1);
+    if (n > 0) {
+      secret[n] = '\0';
+      printf("%s\n", secret);
+    }
+    close(fd);
+    exit(0);
+  }
+
   char *mem = sbrk(LEN);
 
   for (int i = 0; i < LEN; i++) {
@@ -34,4 +46,3 @@ main(int argc, char *argv[])
 
   exit(0);
 }
-
