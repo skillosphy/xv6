@@ -211,8 +211,8 @@ UPROGS=\
 	$U/_sbtest\
 	$U/_attack\
 	$U/_secret\
-	$U/_salam
-
+	$U/_salam\
+	$U/_fw
 
 
 
