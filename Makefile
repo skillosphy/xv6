@@ -212,7 +212,10 @@ UPROGS=\
 	$U/_attack\
 	$U/_secret\
 	$U/_salam\
-	$U/_fw
+	$U/_fw\
+	$U/_fe\
+	$U/_pip\
+	$U/_re
 
 
 
