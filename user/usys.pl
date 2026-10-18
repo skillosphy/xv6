@@ -44,3 +44,5 @@ entry("pause");
 entry("uptime");
 entry("sync");
 entry("interpose");
+entry("trace");
+entry("sysinfo");

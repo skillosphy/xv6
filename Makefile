@@ -215,7 +215,9 @@ UPROGS=\
 	$U/_fw\
 	$U/_fe\
 	$U/_pip\
-	$U/_re
+	$U/_re\
+	$U/_trace\
+	$U/_sysinfo\
 
 
 
