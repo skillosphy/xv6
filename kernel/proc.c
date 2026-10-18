@@ -126,6 +126,7 @@ found:
   p->state = USED;
   p->sandbox_mask = 0;
   p->sandbox_path[0] = 0;
+  p->tracemask = 0;
 
   // Allocate a trapframe page.
   if ((p->trapframe = (struct trapframe *)kalloc()) == 0) {

@@ -178,15 +178,15 @@ syscall(void)
   if (num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     int blocked = p->sandbox_mask & (1 << num);
 
-    if (num == SYS_open && p->sandbox_path[0] != 0 &&
+    if ((num == SYS_open || num == SYS_exec) && p->sandbox_path[0] != 0 &&
         strncmp(p->sandbox_path, "-", MAXPATH) != 0) {
       char path[MAXPATH];
       if (argstr(0, path, MAXPATH) < 0)
         blocked = 1;
-      else if (blocked)
+      else if (num == SYS_exec && blocked)
         blocked = strncmp(path, p->sandbox_path, MAXPATH) != 0;
-      else
-        blocked = strncmp(path, p->sandbox_path, MAXPATH) == 0;
+      else if (num == SYS_open)
+        blocked = strncmp(path, p->sandbox_path, MAXPATH) != 0;
     }
     if (blocked) {
       p->trapframe->a0 = -1;
